@@ -51,7 +51,7 @@ module.exports = function(RED) {
 		var tosplit = null;
         this.on("input", function(msg) {
 			
-			tosplit = msg.payload.split(/\n/);
+			tosplit = msg.payload.toString().split(/\n/);
 			
             loop = Looper();
             loop.setTimeout(node.maxtimeout);
