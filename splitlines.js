@@ -78,7 +78,7 @@ module.exports = function(RED) {
 					
 					
 					
-                    RED.util.setMessageProperty(cpmsg,node.property,tosplit[0]);
+                    RED.util.setMessageProperty(cpmsg,node.property,tosplit[0].trim());
                     node.send([cpmsg, null]);
                     msg._timerpass = true;
 					let c=0;
@@ -101,7 +101,7 @@ module.exports = function(RED) {
                                     c=0;   
 								}									
 								
-								RED.util.setMessageProperty(cpmsg,node.property,tosplit[c]);
+								RED.util.setMessageProperty(cpmsg,node.property,tosplit[c].trim());
 								
                                 if (data == node.maxloops) {
                                     mlmsg = RED.util.cloneMessage(msg);
