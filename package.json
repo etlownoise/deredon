@@ -44,7 +44,8 @@
 	    "httprequestlog": "httprequestlog.js",
             "fuzzrandom": "fuzzrandom.js",
             "sqlinject": "sqlinject.js",
-            "splitlines":"splitlines.js"
+            "splitlines":"splitlines.js",
+            "xssinject":"xssinject.js"
         }
     },
     "author": {
