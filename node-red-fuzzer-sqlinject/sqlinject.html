@@ -1,0 +1,147 @@
+<script type="text/javascript">
+    let strs =  [
+	    '\'',
+	    '\'\-\'',
+        '\' or \'\'\-\'',
+        '\' or \'\' \'',
+		'\' and \'1\'=\'1'
+	];
+
+	RED.nodes.registerType('sqlinject',{
+		category: 'fuzzing',
+		color:"#98d7f1",
+		defaults: {
+		    template: {value: strs.join('\n')},
+			property: {value:"payload",required:true},
+			duration: {value:"1",required:true,validate:RED.validators.number()},
+			units: {value:"Second"},
+			maxloops: {value:"10",required:false,validate:RED.validators.number()},
+			maxtimeout: {value:"1",required:false,validate:RED.validators.number()},
+			maxtimeoutunits: {value:"Hour"},
+			name: {value:""}
+		},
+		inputs:1,
+		outputs:2,
+		icon: "sqlinject.png",
+		label: function() {
+			return this.name || "SQL Injection " + this.duration + " " + this.units + " Loop";
+		},
+		labelStyle: function() {
+			return this.name?"node_label_italic":"";
+		},
+		oneditprepare: function() {
+		    if (this.property === undefined) {
+                $("#node-input-property").val("payload");
+            }
+            $("#node-input-property").typedInput({default:'msg',types:['msg']});
+		
+            const that = this;
+            const stateId = RED.editor.generateViewStateId("node", this, "");
+            this.editor = RED.editor.createEditor({
+                id: 'node-input-template-editor',
+                mode: 'ace/mode/text',
+                stateId: stateId,
+                value: $("#node-input-template").val()
+            });
+			
+			this.template = this.editor.getValue();
+            
+            RED.popover.tooltip($("#node-template-expand-editor"), RED._("node-red:common.label.expand"));
+            $("#node-template-expand-editor").on("click", function (e) {
+                e.preventDefault();
+                const value = that.editor.getValue();
+                that.editor.saveView();
+                RED.editor.editText({
+                    mode: 'ace/mode/text',
+                    value: value,
+                    stateId: stateId,
+                    width: "Infinity",
+                    focus: true,
+                    complete: function (v, cursor) {
+                        that.editor.setValue(v, -1);
+                        setTimeout(function () {
+                            that.editor.restoreView();
+                            that.editor.focus();
+                        }, 250);
+                    }
+                })
+            })
+        },
+        oneditsave: function() {
+            $("#node-input-template").val(this.editor.getValue());
+            this.editor.destroy();
+            delete this.editor;
+        },
+        oneditcancel: function() {
+            this.editor.destroy();
+            delete this.editor;
+        },
+        oneditresize: function(size) {
+            var rows = $("#dialog-form>div:not(.node-text-editor-row)");
+            var height = $("#dialog-form").height();
+            for (var i=0; i<rows.length; i++) {
+                height -= $(rows[i]).outerHeight(true);
+            }
+            var editorRow = $("#dialog-form>div.node-text-editor-row");
+            height -= (parseInt(editorRow.css("marginTop"))+parseInt(editorRow.css("marginBottom")));
+            $(".node-text-editor").css("height",height+"px");
+            this.editor.resize();
+        },
+		outputLabels: ["original msg","stopped msg"]
+	});
+</script>
+
+<script type="text/x-red" data-template-name="sqlinject">
+    <div class="form-row">
+        <label for="node-input-property"><i class="fa fa-ellipsis-h"></i> <span data-i18n="node-red:common.label.property"></span></label>
+        <input type="text" id="node-input-property" style="width:70%;"/>
+    </div>
+	<div class="form-row">
+		<label for="node-input-duration"><i class="fa fa-clock-o"></i> Loop Every</label>
+		<input type="text" id="node-input-duration" style="text-align:end; width:70px !important">
+		<select id="node-input-units" style="width:140px !important">
+			<option value="Second">Seconds</option>
+			<option value="Minute">Minutes</option>
+			<option value="Hour">Hours</option>
+		</select>
+	</div>
+	<div class="form-row">
+		<label for="node-input-maxloops"><i class="fa fa-repeat"></i> Max Loops</label>
+		<input type="text" id="node-input-maxloops" style="text-align:end; width:70px !important">
+	</div>
+	<div class="form-row">
+		<label for="node-input-maxtimeout"><i class="fa fa-clock-o"></i> Max Timeout</label>
+		<input type="text" id="node-input-maxtimeout" style="text-align:end; width:70px !important">
+		<select id="node-input-maxtimeoutunits" style="width:140px !important">
+			<option value="Second">Seconds</option>
+			<option value="Minute">Minutes</option>
+			<option value="Hour">Hours</option>
+		</select>
+	</div>
+	<div class="form-row">
+		<label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+		<input type="text" id="node-input-name" placeholder="Name"></input>
+	</div>
+	<div class="form-row" style="position: relative; margin-bottom: 0px;">
+		<div><i class="fa fa-file-code-o"></i> SQL Injection Strings </div>
+        <label for="node-input-template"></label>
+        <input type="hidden" id="node-input-template" autofocus="autofocus">
+        <div style="position: absolute; right:0;display:inline-block; text-align: right; font-size: 0.8em;">
+            <button id="node-template-expand-editor" class="red-ui-button red-ui-button-small"><i class="fa fa-expand"></i></button>
+        </div>
+    </div>
+	<div class="form-row node-text-editor-row">
+        <div style="height: 250px; min-height:150px;" class="node-text-editor" id="node-input-template-editor" ></div>
+    </div>
+
+</script>
+
+<script type="text/x-red" data-help-name="sqlinject">
+	<p>Sends <code>msg</code> with sql injection strings to the first output continually, once per specified time, till a msg with any topic of <code>stop</code> or <code>STOP</code> is received, at which time the second output will automatically send a payload of <code>stopped</code>.
+	<p>You can also stop the loop by specifying a maximum number of loops, which when reached, will stop the loop and timer, as well as sending a payload of <code>max loops reached</code> through the second output. Keep in mind, the first <code>msg</code> simply passes through, and is therefore not part of the loop. So if you set the max loops to <code>5</code>, you will get <code>6 messages</code>, which is 1 original message, and 5 messages from the loop.</p>
+	<p>Finally, to ensure you do not end up with an infinite loop, you can set a maximum timeout in seconds, minutes or hours, and when that time is reached, the loop and timer will also be stopped.</p>
+	<p><code>NOTE:</code> Setting the Max Loops and Max Timeout settings to high values can, for all intents, ensure that the loop can only be stopped by an incoming <code>stop</code> payload, however, the stability of the loop has not been tested over an extended number of hours.</p>
+	<p>Based on node-red-contrib-looptimer2 by Tiago.</p>
+</script>
+
+
