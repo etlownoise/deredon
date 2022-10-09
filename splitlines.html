@@ -30,7 +30,7 @@
 	});
 </script>
 
-<script type="text/x-red" data-template-name="sqlinject">
+<script type="text/x-red" data-template-name="splitlines">
     <div class="form-row">
         <label for="node-input-property"><i class="fa fa-ellipsis-h"></i> <span data-i18n="node-red:common.label.property"></span></label>
         <input type="text" id="node-input-property" style="width:70%;"/>
@@ -64,7 +64,7 @@
 
 </script>
 
-<script type="text/x-red" data-help-name="sqlinject">
+<script type="text/x-red" data-help-name="splitlines">
 	<p>Sends <code>msg</code> with payload split by lines to the first output continually, once per specified time, till a msg with any topic of <code>stop</code> or <code>STOP</code> is received, at which time the second output will automatically send a payload of <code>stopped</code>.
 	<p>You can also stop the loop by specifying a maximum number of loops, which when reached, will stop the loop and timer, as well as sending a payload of <code>max loops reached</code> through the second output. Keep in mind, the first <code>msg</code> simply passes through, and is therefore not part of the loop. So if you set the max loops to <code>5</code>, you will get <code>6 messages</code>, which is 1 original message, and 5 messages from the loop.</p>
 	<p>Finally, to ensure you do not end up with an infinite loop, you can set a maximum timeout in seconds, minutes or hours, and when that time is reached, the loop and timer will also be stopped.</p>
