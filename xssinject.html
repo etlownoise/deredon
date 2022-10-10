@@ -1,5 +1,5 @@
 <script type="text/javascript">
-    let strs =  [
+    let xssstrs =  [
 	    'aaaa',
         'bbbb'
 	];
@@ -8,7 +8,7 @@
 		category: 'fuzzing',
 		color:"#98d7f1",
 		defaults: {
-		    template: {value: strs.join('\n')},
+		    template: {value: xssstrs.join('\n')},
 			property: {value:"payload",required:true},
 			duration: {value:"1",required:true,validate:RED.validators.number()},
 			units: {value:"Second"},
