@@ -1,7 +1,8 @@
 <script type="text/javascript">
+    //make sure every node uses a diferent var name than strs 	
     let xssstrs =  [
-	    'aaaa',
-        'bbbb'
+	    '<script>alert(1)\/\/',
+	    '<script>alert(1)<!–' 
 	];
 
 	RED.nodes.registerType('xssinject',{
